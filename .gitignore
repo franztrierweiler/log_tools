@@ -10,4 +10,4 @@
 
 # Dependency directories (remove the comment below to include it)
 data/*
-windows-tools/*
+windows_tools/*
