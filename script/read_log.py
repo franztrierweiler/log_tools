@@ -1,3 +1,3 @@
 #!/bin/python
 
-echo "Script launched"
+print ("Script launched")
