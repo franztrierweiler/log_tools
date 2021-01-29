@@ -1,10 +1,19 @@
 {
 	"folders": [
 		{
-			"path": "..\\..\\analyse_logs\\data"
+			"path": "..\\.git"
 		},
 		{
-			"path": "..\\..\\analyse_logs\\script"
+			"path": "..\\data"
+		},
+		{
+			"path": "..\\script"
+		},
+		{
+			"path": "."
+		},
+		{
+			"path": "..\\windows_tools"
 		}
 	]
 }
