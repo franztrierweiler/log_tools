@@ -5,7 +5,8 @@ Requis:
 
 Structure du répertoire de travail:
 ./data <-- répertoire où déposer les logs
-./script <-- répertoire où installer ce script
-./windows_tools <-- répertoire contenant xxxLogExtracter_V3
+./script <-- répertoire du script bash
+./windows_tools <-- répertoire où installer xxxLogExtracter_V3 (non gitté)
 
-Le script ne réalise pas le découpage des logs
+Le script ne réalise pas le découpage des logs. Pour cela utiliser le logiciel adéquat dans ./windows_tools
+
