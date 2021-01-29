@@ -5,7 +5,7 @@ Requis:
 
 Structure du répertoire de travail:
 ./data <-- répertoire où déposer les logs
-./script <-- répertoire où git cloner log_tools
+./script <-- répertoire où installer ce script
 ./windows_tools <-- répertoire contenant xxxLogExtracter_V3
 
 Le script ne réalise pas le découpage des logs
