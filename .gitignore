@@ -11,3 +11,7 @@
 # Dependency directories (remove the comment below to include it)
 data/*
 windows_tools/*
+
+# Exception to the rule
+!data/.gitkeep 
+!windows_tools/.gitkeep
