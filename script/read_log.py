@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 
 import os
-import zipfile
+import sys
+
+# Fonctions utiles
+
+# Main script
 
 print ("-- Début du script")
 print ("-- Termid", os.ctermid())
@@ -39,11 +43,12 @@ for current_file in root_rep:
         print("\n")
         print("Analyse du terminal ", current_terminal)
         os.chdir(current_terminal)
+        print("Travail dans le répertoire ",current_terminal)
 
-        #Teste si le terminal a des logs disponibles
+        # Teste si le terminal a des logs disponibles
         current_file_structure = os.listdir()
         if 'export' in current_file_structure:
-            print("Ce terminal a des logs")
+            print("Ce terminal a un répertoire export")
             
             os.chdir("export")
             for current_zip_file in os.listdir():
@@ -51,15 +56,20 @@ for current_file in root_rep:
                 print (file_name, ".", file_extension)
 
                 if (file_extension == ".ZIP"):
-                    print ("Décompression du fichier", file_name)
+                    print ("Fichier ZIP disponible")
+                    print ("Décompression du fichier", current_zip_file)
+                    # Commande linux sioux pour décompresser le maudit fichier zip
+                    system_command = "cat \"" + current_zip_file + "\"" + " | gunzip > " + "\"" + file_name + ".TXT\""
+                    os.system(system_command)
 
+            # Remonte au dessus d'export
             os.chdir("..")
-
+            
         else:
             print("Ce terminal n'a pas de répertoire export")
         
+        # Remonte au dessus du terminal
         os.chdir("..")
-
 
     os.chdir("..")
         
