@@ -56,10 +56,23 @@ for current_file in root_rep:
                 print (file_name, ".", file_extension)
 
                 if (file_extension == ".ZIP"):
+                    # Décompressio du fichier trouvé
                     print ("Fichier ZIP disponible")
                     print ("Décompression du fichier", current_zip_file)
                     # Commande linux sioux pour décompresser le maudit fichier zip
                     system_command = "cat \"" + current_zip_file + "\"" + " | gunzip > " + "\"" + file_name + ".TXT\""
+                    os.system(system_command)
+
+                    # Analyse du fichier trouvé
+
+                    # Cherche 'PAIEMENT
+                    system_command = "cat \"" + file_name + ".TXT\"" + " | grep \"'PAIEMENT\""
+                    print(system_command)
+                    os.system(system_command)
+
+                    # Cherche INCID TECHNIQUE
+                    system_command = "cat \"" + file_name + ".TXT\"" + " | grep \"'INCID TECHNIQUE\""
+                    print(system_command)
                     os.system(system_command)
 
             # Remonte au dessus d'export
