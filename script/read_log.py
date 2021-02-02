@@ -16,7 +16,7 @@ logging.debug ("-- Début du script")
 logging.debug ("-- Termid %s", os.ctermid())
 
 # L'art du pprint pour afficher les objets Python
-pp = pprint.PrettyPrinter(indent=1, width=200, depth=None, stream=None, compact=False, sort_dicts=False)
+pp = pprint.PrettyPrinter(indent=1, width=150, depth=None, stream=None, compact=False, sort_dicts=False)
 
 # Construit la liste des dossiers à parcourir
 os.chdir("../data")
@@ -147,7 +147,7 @@ for current_file in root_rep:
                             patterns["Fichiers avec incidents"].append(str(result[i])[0:20])
                         
                     # Cherche ERREUR
-                    system_command = "cat \"" + file_name + ".TXT\"" + " | grep -n \"ERREUR\""
+                    system_command = "cat \"" + file_name + ".TXT\"" + " | grep -n \"ERREUR DIALOGUE\""
                     logging.debug(system_command)
                     result = os.popen(system_command).readlines()
                     logging.debug(result)
