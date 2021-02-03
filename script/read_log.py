@@ -1,5 +1,18 @@
 #!/usr/bin/env python3
 
+################################################################################
+#
+# read_log.py
+#
+# Script de recherche d'erreurs dans les logs de certaines
+# applications bancaires de certains types de terminaux.
+#
+# https://github.com/franztrierweiler/log_tools
+#
+# OLAQIN 2021
+#
+###############################################################################
+
 import os
 import sys
 import pprint
@@ -74,9 +87,10 @@ for current_file in root_rep:
             num_paiement_refuse = 0
             num_incid_technique = 0
             num_erreur = 0
+            num_reboot = 0
 
             # Dictionnaire des patterns
-            patterns = {"PAIEMENT ACCEPTE":num_paiement_accepte,"PAIEMENT REFUSE":num_paiement_refuse,"INCID TECHNIQUE":num_incid_technique,"ERREUR":num_erreur, "Fichiers avec incidents":[],"Fichiers avec erreurs":[]}
+            patterns = {"PAIEMENT ACCEPTE":num_paiement_accepte, "PAIEMENT REFUSE":num_paiement_refuse,"INCID TECHNIQUE":num_incid_technique,"ERREUR":num_erreur, "REBOOT SUSPECTE":num_reboot, "Fichiers avec incidents":[],"Fichiers avec erreurs":[], "Fichiers avec reboot":[]}
 
             # Liste des fichiers sujets à analyse
             fichiers_avec_incidents = []
@@ -87,7 +101,9 @@ for current_file in root_rep:
                 file_name, file_extension = os.path.splitext(current_zip_file)
                 logging.debug (file_name, ".", file_extension)
 
+                chercher_blocage_terminal = False
 
+                # Traitement de chaque fichie ZIP
                 if (file_extension == ".ZIP"):
 
                     print("  ", current_zip_file)
@@ -145,6 +161,8 @@ for current_file in root_rep:
                         patterns["Fichiers avec incidents"].append(file_name)
                         for i in range(number_lines):
                             patterns["Fichiers avec incidents"].append(str(result[i])[0:20])
+
+                        chercher_blocage_terminal = True
                         
                     # Cherche ERREUR
                     system_command = "cat \"" + file_name + ".TXT\"" + " | grep -n \"ERREUR DIALOGUE\""
@@ -164,7 +182,32 @@ for current_file in root_rep:
                         for i in range(number_lines):
                             patterns["Fichiers avec erreurs"].append(str(result[i])[0:20])
 
+                        chercher_blocage_terminal = True
+
+                    # S'il y a un incident technique ou une erreur de dialogue, chercher une
+                    # trace de reboot dans les traces du fichier en cours.
+                    if (chercher_blocage_terminal == True):
+                        # Hypothèse #1: un init ADM montre un reboot.
+                        system_command = "cat \"" + file_name + ".TXT\"" + " | grep -n \"' INITIALISATION       ADM       '\""
+
+                        logging.debug(system_command)
+                        result = os.popen(system_command).readlines()
+                        logging.debug(result)
+                        number_lines=len(result)
+
+                        if number_lines > 0:
+                            logging.debug("Pattern trouvé")
+                            # Ajout du pattern dans le dictionnaire
+                            num_reboot = num_reboot + number_lines
+                            patterns["REBOOT SUSPECTE"] = num_erreur
+
+                            # Ajout du fichier incriminé
+                            patterns["Fichiers avec reboot"].append(file_name)
+                            for i in range(number_lines):
+                                patterns["Fichiers avec reboot"].append(str(result[i])[0:20])
+
             # Un terminal a été traité
+            # Au moins un fichier ZIP a-t-il été traité ?
             terminal_list[current_terminal] = patterns
             root_rep[current_file] = terminal_list
 
@@ -173,6 +216,8 @@ for current_file in root_rep:
             
         else:
             logging.debug("Ce terminal n'a pas de répertoire export")
+            terminal_list[current_terminal] = ["Aucun log disponible"]
+            root_rep[current_file] = terminal_list
 
         # Remonte au dessus du terminal
         os.chdir("..")
