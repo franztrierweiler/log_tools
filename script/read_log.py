@@ -90,11 +90,14 @@ for current_file in root_rep:
             num_reboot = 0
 
             # Dictionnaire des patterns
-            patterns = {"PAIEMENT ACCEPTE":num_paiement_accepte, "PAIEMENT REFUSE":num_paiement_refuse,"INCID TECHNIQUE":num_incid_technique,"ERREUR":num_erreur, "REBOOT SUSPECTE":num_reboot, "Fichiers avec incidents":[],"Fichiers avec erreurs":[], "Fichiers avec reboot":[]}
+            patterns = {"PAIEMENT ACCEPTE":num_paiement_accepte, "PAIEMENT REFUSE":num_paiement_refuse,"INCID TECHNIQUE":num_incid_technique,"ERREUR":num_erreur, "REBOOT SUSPECTE":num_reboot, "Fichiers avec incidents":[],"Fichiers avec erreurs":[], "Fichiers avec reboot":[], "Liste jours": {} }
 
             # Liste des fichiers sujets à analyse
+            # A enlever, inutile.
             fichiers_avec_incidents = []
             fichiers_avec_erreurs = []
+
+            liste_jours= {}
 
             os.chdir("export")
             for current_zip_file in os.listdir():
@@ -102,6 +105,9 @@ for current_file in root_rep:
                 logging.debug (file_name, ".", file_extension)
 
                 chercher_blocage_terminal = False
+
+                # Fichiers avec stats paiements par jour
+                synthese_par_jour = {"Paiements":0,"INCID TECHNIQUE":0,"ERREUR":0}
 
                 # Traitement de chaque fichie ZIP
                 if (file_extension == ".ZIP"):
@@ -130,6 +136,7 @@ for current_file in root_rep:
                         # Ajout du pattern dans le dictionnaire
                         num_paiement_accepte = num_paiement_accepte + number_lines
                         patterns["PAIEMENT ACCEPTE"] = num_paiement_accepte
+                        synthese_par_jour["Paiements"] = number_lines
 
                     # Cherche 'PAIEMENT REFUSE
                     system_command = "cat \"" + file_name + ".TXT\"" + " | grep -n \"'PAIEMENT REFUSE\""
@@ -143,6 +150,7 @@ for current_file in root_rep:
                         # Ajout du pattern dans le dictionnaire
                         num_paiement_refuse = num_paiement_refuse + number_lines
                         patterns["PAIEMENT REFUSE"] = num_paiement_refuse
+                        synthese_par_jour["Paiements"] += number_lines
 
                     # Cherche INCID TECHNIQUE
                     system_command = "cat \"" + file_name + ".TXT\"" + " | grep -n \"'INCID TECHNIQUE\""
@@ -162,10 +170,12 @@ for current_file in root_rep:
                         for i in range(number_lines):
                             patterns["Fichiers avec incidents"].append(str(result[i])[0:20])
 
+                        synthese_par_jour["INCID TECHNIQUE"] = number_lines
+
                         chercher_blocage_terminal = True
                         
                     # Cherche ERREUR
-                    system_command = "cat \"" + file_name + ".TXT\"" + " | grep -n \"ERREUR DIALOGUE\""
+                    system_command = "cat \"" + file_name + ".TXT\"" + " | grep -n \"ERREUR  DE   DIALOGUE\""
                     logging.debug(system_command)
                     result = os.popen(system_command).readlines()
                     logging.debug(result)
@@ -182,13 +192,15 @@ for current_file in root_rep:
                         for i in range(number_lines):
                             patterns["Fichiers avec erreurs"].append(str(result[i])[0:20])
 
+                        synthese_par_jour["ERREUR"] = number_lines
+
                         chercher_blocage_terminal = True
 
                     # S'il y a un incident technique ou une erreur de dialogue, chercher une
                     # trace de reboot dans les traces du fichier en cours.
                     if (chercher_blocage_terminal == True):
-                        # Hypothèse #1: un init ADM montre un reboot.
-                        system_command = "cat \"" + file_name + ".TXT\"" + " | grep -n \"' INITIALISATION       ADM       '\""
+                        # Hypothèse #1: un init ADM montre un reboot. 
+                        system_command = "cat \"" + file_name + ".TXT\"" + " | grep -n \"Starting C3net server\""
 
                         logging.debug(system_command)
                         result = os.popen(system_command).readlines()
@@ -205,6 +217,10 @@ for current_file in root_rep:
                             patterns["Fichiers avec reboot"].append(file_name)
                             for i in range(number_lines):
                                 patterns["Fichiers avec reboot"].append(str(result[i])[0:20])
+
+                    liste_jours[file_name[-12:]] = synthese_par_jour
+
+                patterns["Liste jours"] = liste_jours
 
             # Un terminal a été traité
             # Au moins un fichier ZIP a-t-il été traité ?
